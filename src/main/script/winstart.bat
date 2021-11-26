@@ -21,7 +21,7 @@ echo CLASSPATH=%CLASSPATH%
 echo "Start App..."
 
 java -version
-java  %JAVA_VM% %JAVA_OPTIONS% -classpath %CLASSPATH% -Xdebug  -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8336 com.qiwenshare.file.FileApplication
+java  %JAVA_VM% %JAVA_OPTIONS% -classpath %CLASSPATH% -Xdebug  -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8336 FileApplication
 
 goto end
 
