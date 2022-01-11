@@ -33,7 +33,7 @@ public class UserController {
 
 
 
-    public static Map<String, String> verificationCodeMap = new HashMap<>();
+//    public static Map<String, String> verificationCodeMap = new HashMap<>();
 
 
     public static final String CURRENT_MODULE = "用户管理";
@@ -67,10 +67,10 @@ public class UserController {
         try {
             UserBean sessionUserBean = new UserBean();
             sessionUserBean.setPassword(saveUserBean.getPassword());
-            sessionUserBean.setQqPassword(saveUserBean.getQqPassword());
+//            sessionUserBean.setQqPassword(saveUserBean.getQqPassword());
             sessionUserBean.setTelephone(saveUserBean.getTelephone());
-            sessionUserBean.setOpenId(saveUserBean.getOpenId());
-            jwt = JjwtUtil.createJWT("qiwenshare", "qiwen", JSON.toJSONString(sessionUserBean));
+//            sessionUserBean.setOpenId(saveUserBean.getOpenId());
+            jwt = JjwtUtil.createJWT("qingyunshare", "qingyun", JSON.toJSONString(sessionUserBean));
         } catch (Exception e) {
             log.info("登录失败：{}", e);
             return RestResult.fail().message("创建token失败！");

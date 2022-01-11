@@ -21,7 +21,7 @@ public interface UserMapper extends BaseMapper<UserBean> {
      *               2-普通用户
      * @return
      */
-    int insertUserRole(long userId, long roleId);
+//    int insertUserRole(long userId, long roleId);
 
 
 

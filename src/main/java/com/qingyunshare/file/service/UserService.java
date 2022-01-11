@@ -65,14 +65,15 @@ public class UserService extends ServiceImpl<UserMapper, UserBean> implements IU
             }
             tokenPassword = tokenUserBean.getPassword();
             savePassword = saveUserBean.getPassword();
-        } else if (StringUtils.isNotEmpty(tokenUserBean.getQqPassword())) {
-            saveUserBean = selectUserByopenid(tokenUserBean.getOpenId());
-            if (saveUserBean == null) {
-                return null;
-            }
-            tokenPassword = tokenUserBean.getQqPassword();
-            savePassword = saveUserBean.getQqPassword();
         }
+//        else if (StringUtils.isNotEmpty(tokenUserBean.getQqPassword())) {
+//            saveUserBean = selectUserByopenid(tokenUserBean.getOpenId());
+//            if (saveUserBean == null) {
+//                return null;
+//            }
+//            tokenPassword = tokenUserBean.getQqPassword();
+//            savePassword = saveUserBean.getQqPassword();
+//        }
         if (StringUtils.isEmpty(tokenPassword) || StringUtils.isEmpty(savePassword)) {
             return null;
         }
@@ -85,13 +86,13 @@ public class UserService extends ServiceImpl<UserMapper, UserBean> implements IU
     }
 
 
-    @Override
-    public UserBean selectUserByopenid(String openid) {
-        LambdaQueryWrapper<UserBean> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(UserBean::getOpenId, openid);
-        return userMapper.selectOne(lambdaQueryWrapper);
-
-    }
+//    @Override
+//    public UserBean selectUserByopenid(String openid) {
+//        LambdaQueryWrapper<UserBean> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+//        lambdaQueryWrapper.eq(UserBean::getOpenId, openid);
+//        return userMapper.selectOne(lambdaQueryWrapper);
+//
+//    }
     /**
      * 用户注册
      */
@@ -99,14 +100,14 @@ public class UserService extends ServiceImpl<UserMapper, UserBean> implements IU
     public RestResult<String> registerUser(UserBean userBean) {
         //RestResult<String> restResult = new RestResult<String>();
         //判断验证码
-        String telephone = userBean.getTelephone();
+//        String telephone = userBean.getTelephone();
 //        String saveVerificationCode = UserController.verificationCodeMap.get(telephone);
 //        if (!saveVerificationCode.equals(userBean.getVerificationcode())){
 //            restResult.setSuccess(false);
 //            restResult.setErrorMessage("验证码错误！");
 //            return restResult;
 //        }
-        UserController.verificationCodeMap.remove(telephone);
+//        UserController.verificationCodeMap.remove(telephone);
         if (userBean.getTelephone() == null || "".equals(userBean.getTelephone())){
             return RestResult.fail().message("手机号不能为空！");
         }
@@ -139,7 +140,8 @@ public class UserService extends ServiceImpl<UserMapper, UserBean> implements IU
         userBean.setPassword(newPassword);
         userBean.setRegisterTime(DateUtil.getCurrentTime());
         int result = userMapper.insertUser(userBean);
-        userMapper.insertUserRole(userBean.getUserId(), 2);
+        //设置用户角色
+//        userMapper.insertUserRole(userBean.getUserId(), 2);
         if (result == 1) {
             return RestResult.success();
         } else {
