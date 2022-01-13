@@ -1,5 +1,6 @@
 package com.qingyunshare.file.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.qingyunshare.file.advice.QiwenException;
 import com.qingyunshare.file.component.FileDealComp;
@@ -52,32 +53,25 @@ public class FileService extends ServiceImpl<FileMapper, FileBean> implements IF
     @Resource
     FileDealComp fileDealComp;
 
-    @Override
-    public void increaseFilePointCount(Long fileId) {
-        FileBean fileBean = fileMapper.selectById(fileId);
-        if (fileBean == null) {
-            log.error("文件不存在，fileId : {}", fileId );
-            return;
-        }
-        fileBean.setPointCount(fileBean.getPointCount()+1);
-        fileMapper.updateById(fileBean);
-    }
 
     @Override
-    public void decreaseFilePointCount(Long fileId) {
-        FileBean fileBean = fileMapper.selectById(fileId);
-        fileBean.setPointCount(fileBean.getPointCount()-1);
-        fileMapper.updateById(fileBean);
+    public Long getFilePointCount(Long fileId) {
+        LambdaQueryWrapper<UserFile> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(UserFile::getFileId, fileId);
+        long count = userFileMapper.selectCount(lambdaQueryWrapper);
+        return count;
     }
 
     @Override
     public void unzipFile(long userFileId, int unzipMode, String filePath) {
         UserFile userFile = userFileMapper.selectById(userFileId);
         FileBean fileBean = fileMapper.selectById(userFile.getFileId());
+        // 先将压缩文件下载至temp交换目录
         File destFile = new File(UFOPUtils.getStaticPath() + "temp" + File.separator + fileBean.getFileUrl());
+        log.debug("解压文件的destFile：" + destFile.getAbsolutePath());
 
 
-        Downloader downloader = ufopFactory.getDownloader(fileBean.getStorageType());
+        Downloader downloader = ufopFactory.getDownloader(storageType);
         DownloadFile downloadFile = new DownloadFile();
         downloadFile.setFileUrl(fileBean.getFileUrl());
         downloadFile.setFileSize(fileBean.getFileSize());
@@ -92,7 +86,7 @@ public class FileService extends ServiceImpl<FileMapper, FileBean> implements IF
 
         String extendName = userFile.getExtendName();
 
-        String unzipUrl = UFOPUtils.getTempPath(fileBean.getFileUrl()).getAbsolutePath().replace("." + extendName, "");
+        String unzipUrl = UFOPUtils.getTempFile(fileBean.getFileUrl()).getAbsolutePath().replace("." + extendName, "");
 
         List<String> fileEntryNameList = new ArrayList<>();
         if ("zip".equals(extendName)) {
@@ -113,8 +107,8 @@ public class FileService extends ServiceImpl<FileMapper, FileBean> implements IF
         }
 
         if (!fileEntryNameList.isEmpty()) {
-            UserFile qiwenDir = QiwenFileUtil.getQiwenDir(userFile.getUserId(), userFile.getFilePath(), userFile.getFileName());
-            userFileMapper.insert(qiwenDir);
+            UserFile qingyunDir = QiwenFileUtil.getQiwenDir(userFile.getUserId(), userFile.getFilePath(), userFile.getFileName());
+            userFileMapper.insert(qingyunDir);
         }
         for (int i = 0; i < fileEntryNameList.size(); i++){
             String entryName = fileEntryNameList.get(i);
@@ -145,7 +139,7 @@ public class FileService extends ServiceImpl<FileMapper, FileBean> implements IF
 
                         List<FileBean> list = fileMapper.selectByMap(param);
                         if (list != null && !list.isEmpty()) { //文件已存在
-                            increaseFilePointCount(list.get(0).getFileId());
+//                            increaseFilePointCount(list.get(0).getFileId());
                             saveUserFile.setFileId(list.get(0).getFileId());
                         } else { //文件不存在
                             fileInputStream1 = new FileInputStream(currentFile);
@@ -154,8 +148,8 @@ public class FileService extends ServiceImpl<FileMapper, FileBean> implements IF
                             String saveFileUrl = ufopFactory.getCopier().copy(fileInputStream1, createFile);
                             tempFileBean.setFileSize(currentFile.length());
                             tempFileBean.setFileUrl(saveFileUrl);
-                            tempFileBean.setPointCount(1);
-                            tempFileBean.setStorageType(storageType);
+//                            tempFileBean.setPointCount(1);
+//                            tempFileBean.setStorageType(storageType);
                             tempFileBean.setIdentifier(md5Str);
                             fileMapper.insert(tempFileBean);
 

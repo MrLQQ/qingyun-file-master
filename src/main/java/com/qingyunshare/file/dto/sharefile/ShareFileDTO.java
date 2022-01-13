@@ -10,10 +10,10 @@ public class ShareFileDTO {
     private String files;
     @Schema(description = "过期日期", example="2020-05-23 22:10:33")
     private String endTime;
-    @Schema(description = "分享类型", example="0公共分享，1私密分享，2好友分享")
+    @Schema(description = "分享类型", example="0公共分享，1私密分享")
     private Integer shareType;
-    @Schema(description = "备注", example="")
-    private String remarks;
+//    @Schema(description = "备注", example="")
+//    private String remarks;
 
 
 

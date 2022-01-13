@@ -184,16 +184,21 @@ public class UserFileService  extends ServiceImpl<UserFileMapper, UserFile> impl
 
     @Override
     public void deleteUserFile(Long userFileId, Long sessionUserId) {
+        // 通过FileId查询userFile
         UserFile userFile = userFileMapper.selectById(userFileId);
+        // 生成UUID作为删除批号
         String uuid = UUID.randomUUID().toString();
+        // 判断当前文件是否为一个目录
         if (userFile.getIsDir() == 1) {
+            // 如果是一个目录
             LambdaUpdateWrapper<UserFile> userFileLambdaUpdateWrapper = new LambdaUpdateWrapper<UserFile>();
-            userFileLambdaUpdateWrapper.set(UserFile::getDeleteFlag, RandomUtil.randomInt(FileConstant.deleteFileRandomSize))
-                    .set(UserFile::getDeleteBatchNum, uuid)
-                    .set(UserFile::getDeleteTime, DateUtil.getCurrentTime())
-                    .eq(UserFile::getUserFileId, userFileId);
-            userFileMapper.update(null, userFileLambdaUpdateWrapper);
+            userFileLambdaUpdateWrapper.set(UserFile::getDeleteFlag, 1)     // 设置DeleteFlag 1
+                    .set(UserFile::getDeleteBatchNum, uuid)                 // 设置删除批号
+                    .set(UserFile::getDeleteTime, DateUtil.getCurrentTime())    // 设置删除时间
+                    .eq(UserFile::getUserFileId, userFileId);                   // 设置用户文件id
+            userFileMapper.update(null, userFileLambdaUpdateWrapper);       // 更新用户文件表数据
 
+            // 删除文件夹下的所有文件
             String filePath = userFile.getFilePath() + userFile.getFileName() + "/";
             updateFileDeleteStateByFilePath(filePath, uuid, sessionUserId);
 
@@ -227,6 +232,13 @@ public class UserFileService  extends ServiceImpl<UserFileMapper, UserFile> impl
                             .set(UserFile::getDeleteTime, DateUtil.getCurrentTime())
                             .set(UserFile::getDeleteBatchNum, deleteBatchNum)
                             .eq(UserFile::getUserFileId, userFileTemp.getUserFileId())
+                            /**
+                             * 其实删除按逻辑上老说应该将DeleteFlag设为1的，
+                             * 但由于该文件的父级是一个目录，父级目录已被删除，
+                             * 即使其自己下的文件逻辑上没有设置为删除，但对于用户而言依然不可见。
+                             * 同时也是为了保证在回收站中用户不可看到被删除文件夹的内部
+                             * 同windows上的回收站逻辑一致
+                             */
                             .eq(UserFile::getDeleteFlag, 0);
                     userFileMapper.update(null, userFileLambdaUpdateWrapper1);
 

@@ -32,5 +32,11 @@ public interface IFiletransferService {
     void updateStorageBean(StorageBean storageBean);
 
     StorageBean selectStorageByUser(StorageBean storageBean);
+
+    /**
+     * 通过userId查询用户已使用的存储空间
+     * @param userId userId
+     * @return 总文件大小
+     */
     Long selectStorageSizeByUserId(Long userId);
 }

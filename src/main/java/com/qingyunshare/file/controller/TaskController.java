@@ -32,21 +32,21 @@ public class TaskController {
     @Resource
     FileDealComp fileDealComp;
 
-    @Scheduled(cron = "0 0/1 * * * ?")
-    public void deleteFile() {
-
-        LambdaQueryWrapper<FileBean> fileBeanLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        fileBeanLambdaQueryWrapper.eq(FileBean::getPointCount, 0);
-
-        List<FileBean> fileBeanList = fileService.list(fileBeanLambdaQueryWrapper);
-        for (int i = 0; i < fileBeanList.size(); i++) {
-            FileBean fileBean = fileBeanList.get(i);
-            log.info("删除本地文件：" + JSON.toJSONString(fileBean));
-            filetransferService.deleteFile(fileBean);
-            fileService.removeById(fileBean.getFileId());
-        }
-
-    }
+//    @Scheduled(cron = "0 0/1 * * * ?")
+//    public void deleteFile() {
+//
+//        LambdaQueryWrapper<FileBean> fileBeanLambdaQueryWrapper = new LambdaQueryWrapper<>();
+//        fileBeanLambdaQueryWrapper.eq(FileBean::getPointCount, 0);
+//
+//        List<FileBean> fileBeanList = fileService.list(fileBeanLambdaQueryWrapper);
+//        for (int i = 0; i < fileBeanList.size(); i++) {
+//            FileBean fileBean = fileBeanList.get(i);
+//            log.info("删除本地文件：" + JSON.toJSONString(fileBean));
+//            filetransferService.deleteFile(fileBean);
+//            fileService.removeById(fileBean.getFileId());
+//        }
+//
+//    }
 
     @Scheduled(fixedRate = 1000 * 60 * 60 * 24)
     public void updateElasticSearch() {

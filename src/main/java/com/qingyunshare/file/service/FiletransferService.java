@@ -14,8 +14,8 @@ import com.qingyunshare.file.domain.*;
 import com.qiwenshare.common.util.DateUtil;
 import com.qiwenshare.ufop.constant.StorageTypeEnum;
 import com.qiwenshare.ufop.constant.UploadFileStatusEnum;
-import com.qiwenshare.ufop.exception.DownloadException;
-import com.qiwenshare.ufop.exception.UploadException;
+import com.qiwenshare.ufop.exception.operation.DownloadException;
+import com.qiwenshare.ufop.exception.operation.UploadException;
 import com.qiwenshare.ufop.factory.UFOPFactory;
 import com.qiwenshare.ufop.operation.delete.Deleter;
 import com.qiwenshare.ufop.operation.delete.domain.DeleteFile;
@@ -28,12 +28,14 @@ import com.qiwenshare.ufop.operation.upload.domain.UploadFile;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFileResult;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.List;
 import java.util.zip.Adler32;
@@ -59,9 +61,12 @@ public class FiletransferService implements IFiletransferService {
     @Resource
     FileDealComp fileDealComp;
     @Resource
-    com.qingyunshare.file.mapper.UploadTaskDetailMapper UploadTaskDetailMapper;
+    UploadTaskDetailMapper UploadTaskDetailMapper;
     @Resource
     UploadTaskMapper uploadTaskMapper;
+
+    @Value("${ufop.storage-type}")
+    private Integer storageType;
 
     @Override
     public void uploadFile(HttpServletRequest request, UploadFileDTO uploadFileDto, Long userId) {
@@ -90,8 +95,8 @@ public class FiletransferService implements IFiletransferService {
             if (UploadFileStatusEnum.SUCCESS.equals(uploadFileResult.getStatus())){
                 fileBean.setFileUrl(uploadFileResult.getFileUrl());
                 fileBean.setFileSize(uploadFileResult.getFileSize());
-                fileBean.setStorageType(uploadFileResult.getStorageType().getCode());
-                fileBean.setPointCount(1);
+//                fileBean.setStorageType(uploadFileResult.getStorageType().getCode());
+//                fileBean.setPointCount(1);
                 fileMapper.insert(fileBean);
                 UserFile userFile = new UserFile();
 
@@ -167,9 +172,9 @@ public class FiletransferService implements IFiletransferService {
         if (userFile.getIsDir() == 0) {
 
             FileBean fileBean = fileMapper.selectById(userFile.getFileId());
-            Downloader downloader = ufopFactory.getDownloader(fileBean.getStorageType());
+            Downloader downloader = ufopFactory.getDownloader(storageType);
             if (downloader == null) {
-                log.error("下载失败，文件存储类型不支持下载，storageType:{}", fileBean.getStorageType());
+                log.error("下载失败，文件存储类型不支持下载，storageType:{}", storageType);
                 throw new DownloadException("下载失败");
             }
             DownloadFile downloadFile = new DownloadFile();
@@ -206,9 +211,9 @@ public class FiletransferService implements IFiletransferService {
             try {
                 for (UserFile userFile1 : userFileList) {
                     FileBean fileBean = fileMapper.selectById(userFile1.getFileId());
-                    Downloader downloader = ufopFactory.getDownloader(fileBean.getStorageType());
+                    Downloader downloader = ufopFactory.getDownloader(storageType);
                     if (downloader == null) {
-                        log.error("下载失败，文件存储类型不支持下载，storageType:{}, isOSS:{}", fileBean.getStorageType());
+                        log.error("下载失败，文件存储类型不支持下载，storageType:{}, isOSS:{}", storageType);
                         throw new UploadException("下载失败");
                     }
                     DownloadFile downloadFile = new DownloadFile();
@@ -269,9 +274,9 @@ public class FiletransferService implements IFiletransferService {
     public void previewFile(HttpServletResponse httpServletResponse, PreviewDTO previewDTO) {
         UserFile userFile = userFileMapper.selectById(previewDTO.getUserFileId());
         FileBean fileBean = fileMapper.selectById(userFile.getFileId());
-        Previewer previewer = ufopFactory.getPreviewer(fileBean.getStorageType());
+        Previewer previewer = ufopFactory.getPreviewer(storageType);
         if (previewer == null) {
-            log.error("预览失败，文件存储类型不支持预览，storageType:{}", fileBean.getStorageType());
+            log.error("预览失败，文件存储类型不支持预览，storageType:{}", storageType);
             throw new UploadException("预览失败");
         }
         PreviewFile previewFile = new PreviewFile();
@@ -289,7 +294,7 @@ public class FiletransferService implements IFiletransferService {
     public void deleteFile(FileBean fileBean) {
         Deleter deleter = null;
 
-        deleter = ufopFactory.getDeleter(fileBean.getStorageType());
+        deleter = ufopFactory.getDeleter(storageType);
         DeleteFile deleteFile = new DeleteFile();
         deleteFile.setFileUrl(fileBean.getFileUrl());
 //        deleteFile.setTimeStampName(fileBean.getTimeStampName());

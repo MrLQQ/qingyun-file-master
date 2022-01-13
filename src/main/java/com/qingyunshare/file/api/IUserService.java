@@ -6,6 +6,12 @@ import com.qingyunshare.file.domain.UserBean;
 
 public interface IUserService extends IService<UserBean> {
 
+    /**
+     * 通过解析token获取user的phone，在通过phone查询用户数据
+     *
+     * @param token 用户token
+     * @return UserBean
+     */
     UserBean getUserBeanByToken(String token);
 
 //    UserBean selectUserByopenid(String openid);
@@ -21,6 +27,7 @@ public interface IUserService extends IService<UserBean> {
 
     /**
      * 通过手机号获取用户信息
+     *
      * @param telephone 手机号
      * @return UserBean
      */

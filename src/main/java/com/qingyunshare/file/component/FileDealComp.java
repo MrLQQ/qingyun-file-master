@@ -43,7 +43,7 @@ public class FileDealComp {
     @Resource
     IUserFileService userFileService;
 
-    @Autowired
+    @Resource
     private IElasticSearchService elasticSearchService;
     public static Executor exec = Executors.newFixedThreadPool(10);
 
@@ -112,9 +112,15 @@ public class FileDealComp {
         // 加锁，防止并发情况下有重复创建目录情况
         Lock lock = new ReentrantLock();
         lock.lock();
-        String parentFilePath = UFOPUtils.getParentPath(filePath);
+        // 获取父路径
+        // filePath = '/a/b/c'
+        String parentFilePath = UFOPUtils.getParentPath(filePath);  // parentFilePath='/a/b'
+        // 循环条件是parentFilePath是否包含"/"，意味着filePath是或否是一个文件夹
         while(parentFilePath.contains("/")) {
+            // 提取出文件上一级目录的名字  fileName='b'
             String fileName = parentFilePath.substring(parentFilePath.lastIndexOf("/") + 1);
+
+            // 同理 parentFilePath='/a'
             parentFilePath = UFOPUtils.getParentPath(parentFilePath);
 
             LambdaQueryWrapper<UserFile> lambdaQueryWrapper = new LambdaQueryWrapper<>();

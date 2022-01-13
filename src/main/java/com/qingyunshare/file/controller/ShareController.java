@@ -65,7 +65,7 @@ public class ShareController {
         BeanUtil.copyProperties(shareSecretDTO, share);
         share.setShareTime(DateUtil.getCurrentTime());
         share.setUserId(sessionUserBean.getUserId());
-        share.setShareStatus(0);
+//        share.setShareStatus(0);
         if (shareSecretDTO.getShareType() == 1) {
             String extractionCode = RandomUtil.randomNumbers(6);
             share.setExtractionCode(extractionCode);
@@ -133,11 +133,11 @@ public class ShareController {
                     saveUserFileList.add(p);
                     log.info("当前文件：" + JSON.toJSONString(p));
                     if (p.getIsDir() == 0) {
-                        fileService.increaseFilePointCount(p.getFileId());
+//                        fileService.increaseFilePointCount(p.getFileId());
                     }
                 });
             } else {
-                fileService.increaseFilePointCount(userFile.getFileId());
+//                fileService.increaseFilePointCount(userFile.getFileId());
             }
             userFile.setUserFileId(null);
             userFile.setUserId(userId);

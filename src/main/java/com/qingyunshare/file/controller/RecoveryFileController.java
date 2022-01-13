@@ -1,14 +1,14 @@
 package com.qingyunshare.file.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.qingyunshare.file.api.IUserService;
+import com.qingyunshare.file.domain.FileBean;
 import com.qingyunshare.file.domain.UserBean;
 import com.qingyunshare.file.dto.file.DeleteRecoveryFileDTO;
 import com.qingyunshare.file.dto.recoveryfile.BatchDeleteRecoveryFileDTO;
 import com.qingyunshare.file.dto.recoveryfile.RestoreFileDTO;
 import com.qingyunshare.file.vo.file.RecoveryFileListVo;
-import com.qingyunshare.file.api.IRecoveryFileService;
-import com.qingyunshare.file.api.IUserFileService;
+import com.qingyunshare.file.api.*;
+
 import com.qingyunshare.file.domain.RecoveryFile;
 import com.qingyunshare.file.domain.UserFile;
 import com.qiwenshare.common.anno.MyLog;
@@ -33,6 +33,10 @@ public class RecoveryFileController {
     IUserFileService userFileService;
     @Resource
     IUserService userService;
+    @Resource
+    IFileService fileService;
+    @Resource
+    IFiletransferService filetransferService;
     public static final String CURRENT_MODULE = "回收站文件接口";
 
     @Operation(summary = "删除回收文件", description = "删除回收文件", tags = {"recoveryfile"})
@@ -50,6 +54,16 @@ public class RecoveryFileController {
 
         recoveryFileService.deleteRecoveryFile(userFile);
         recoveryFileService.removeById(deleteRecoveryFileDTO.getRecoveryFileId());
+        Long filePointCount = fileService.getFilePointCount(userFile.getFileId());
+        if (filePointCount != null && filePointCount == 0) {
+            FileBean fileBean = fileService.getById(userFile.getFileId());
+            try {
+                filetransferService.deleteFile(fileBean);
+                fileService.removeById(fileBean.getFileId());
+            } catch (Exception e) {
+                log.error("删除本地文件失败：" + JSON.toJSONString(fileBean));
+            }
+        }
 
         return RestResult.success().data("删除成功");
     }
@@ -71,6 +85,17 @@ public class RecoveryFileController {
 
             recoveryFileService.deleteRecoveryFile(userFile);
             recoveryFileService.removeById(recoveryFile.getRecoveryFileId());
+
+            Long filePointCount = fileService.getFilePointCount(userFile.getFileId());
+            if (filePointCount != null && filePointCount == 0) {
+                FileBean fileBean = fileService.getById(userFile.getFileId());
+                try {
+                    filetransferService.deleteFile(fileBean);
+                    fileService.removeById(fileBean.getFileId());
+                } catch (Exception e) {
+                    log.error("删除本地文件失败：" + JSON.toJSONString(fileBean));
+                }
+            }
         }
         return RestResult.success().data("批量删除成功");
     }

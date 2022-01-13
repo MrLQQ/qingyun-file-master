@@ -104,7 +104,7 @@ public class FiletransferController {
                 //"fileName", "filePath", "extendName", "deleteFlag", "userId"
 
                 userFileService.save(userFile);
-                fileService.increaseFilePointCount(file.getFileId());
+//                fileService.increaseFilePointCount(file.getFileId());
                 fileDealComp.uploadESByUserFileId(userFile.getUserFileId());
             }
 
@@ -258,6 +258,9 @@ public class FiletransferController {
         StorageBean storage = new StorageBean();
         storage.setUserId(sessionUserBean.getUserId());
         storage.setStorageSize(storageSize);
+        // 更新用户使用的空间
+        storageService.updateStrageSizeByUserId(storage);
+        log.debug("用户存储空间storage:" + storage.toString());
         Long totalStorageSize = storageService.getTotalStorageSize(sessionUserBean.getUserId());
         storage.setTotalStorageSize(totalStorageSize);
         return RestResult.success().data(storage);

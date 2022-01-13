@@ -100,8 +100,8 @@ public class OfficeController {
             FileBean fileBean = new FileBean();
             fileBean.setFileSize(0L);
             fileBean.setFileUrl(fileUrl);
-            fileBean.setStorageType(storageType);
-            fileBean.setPointCount(1);
+//            fileBean.setStorageType(storageType);
+//            fileBean.setPointCount(1);
             fileBean.setIdentifier(uuid);
             boolean saveFlag = fileService.save(fileBean);
             UserFile userFile = new UserFile();
@@ -235,7 +235,8 @@ public class OfficeController {
                 String userFileId = request.getParameter("userFileId");
                 UserFile userFile = userFileService.getById(userFileId);
                 FileBean fileBean = fileService.getById(userFile.getFileId());
-                if (fileBean.getPointCount() > 1) {
+                Long pointCount = fileService.getFilePointCount(userFile.getFileId());
+                if (pointCount > 1) {
                     //该场景，暂不支持编辑修改
                     writer.write("{\"error\":1}");
                     return ;
@@ -248,7 +249,7 @@ public class OfficeController {
                 try {
                     InputStream stream = connection.getInputStream();
 
-                    Writer writer1 = ufopFactory.getWriter(fileBean.getStorageType());
+                    Writer writer1 = ufopFactory.getWriter(storageType);
                     WriteFile writeFile = new WriteFile();
                     writeFile.setFileUrl(fileBean.getFileUrl());
 
@@ -270,7 +271,7 @@ public class OfficeController {
 
                     DownloadFile downloadFile = new DownloadFile();
                     downloadFile.setFileUrl(fileBean.getFileUrl());
-                    InputStream inputStream = ufopFactory.getDownloader(fileBean.getStorageType()).getInputStream(downloadFile);
+                    InputStream inputStream = ufopFactory.getDownloader(storageType).getInputStream(downloadFile);
                     String md5Str = DigestUtils.md5Hex(inputStream);
                     lambdaUpdateWrapper
                             .set(FileBean::getIdentifier, md5Str)

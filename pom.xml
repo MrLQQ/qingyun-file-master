@@ -9,9 +9,8 @@
         <version>1.0.8</version>
     </parent>
 
-    <groupId>com.qingyunshare</groupId>
     <artifactId>qingyun-file</artifactId>
-    <version>1.0.8-SNAPSHOT</version>
+    <version>1.1.2-SNAPSHOT</version>
     <name>qingyun-file</name>
     <description>fileos.qiwenshare.com</description>
     <packaging>jar</packaging>
@@ -35,10 +34,12 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.xiaoymin</groupId>
-            <artifactId>knife4j-spring-boot-starter</artifactId>
+<!--            <groupId>com.github.xiaoymin</groupId>-->
+<!--            <artifactId>knife4j-spring-boot-starter</artifactId>-->
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>1.6.1</version>
         </dependency>
-
 
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -71,6 +72,15 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>javax.persistence</groupId>-->
+        <!--            <artifactId>javax.persistence-api</artifactId>-->
+        <!--            <version>2.2</version>-->
+        <!--        </dependency>-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
@@ -96,6 +106,7 @@
         <dependency>
             <groupId>com.qiwenshare</groupId>
             <artifactId>ufop-spring-boot-starter</artifactId>
+            <version>1.1.2</version>
         </dependency>
 
         <dependency>

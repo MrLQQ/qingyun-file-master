@@ -80,6 +80,7 @@ public class WebLogAcpect {
     public void doAfterReturning(Object ret) throws Throwable {
 
         if (ret instanceof RestResult) {
+            // 从统一结果返回内容中获取操作是否执行成功
             boolean isSuccess = ((RestResult) ret).getSuccess();
             String errorMessage = ((RestResult) ret).getMessage();
             UserBean sessionUserBean = userService.getUserBeanByToken(token);

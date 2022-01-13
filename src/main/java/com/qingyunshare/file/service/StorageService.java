@@ -1,6 +1,7 @@
 package com.qingyunshare.file.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.qingyunshare.file.api.IStorageService;
 import com.qingyunshare.file.domain.StorageBean;
@@ -82,5 +83,12 @@ public class StorageService extends ServiceImpl<StorageMapper, StorageBean> impl
         }
         return true;
 
+    }
+
+    @Override
+    public void updateStrageSizeByUserId(StorageBean storageBean) {
+        UpdateWrapper<StorageBean> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("userId",storageBean.getUserId());
+        storageMapper.update(storageBean,updateWrapper);
     }
 }

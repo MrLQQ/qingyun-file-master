@@ -67,8 +67,10 @@ public class FileController {
     @MyLog(operation = "创建文件", module = CURRENT_MODULE)
     @ResponseBody
     public RestResult<String> createFile(@RequestBody CreateFileDTO createFileDto, @RequestHeader("token") String token) {
+        System.out.println("token = " + token);
 
         UserBean sessionUserBean = userService.getUserBeanByToken(token);
+        System.out.println("sessionUserBean.toString() = " + sessionUserBean.toString());
 
         boolean isDirExist = userFileService.isDirExist(createFileDto.getFileName(), createFileDto.getFilePath(), sessionUserBean.getUserId());
 
@@ -94,6 +96,7 @@ public class FileController {
     @MyLog(operation = "文件搜索", module = CURRENT_MODULE)
     @ResponseBody
     public RestResult<SearchHits<FileSearch>> searchFile(SearchFileDTO searchFileDTO, @RequestHeader("token") String token) {
+        log.debug("文件搜索的参数内容："+searchFileDTO.toString());
         UserBean sessionUserBean = userService.getUserBeanByToken(token);
         NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
         HighlightBuilder.Field allHighLight = new HighlightBuilder.Field("*").preTags("<span class='keyword'>")
@@ -174,6 +177,8 @@ public class FileController {
             @Parameter(description = "页面数量", required = true) long pageCount,
             @RequestHeader("token") String token){
 
+        log.debug("文件路径：" + filePath + ",当前页：" + currentPage + ",页面数量：" + pageCount);
+
         UserFile userFile = new UserFile();
 
         UserBean sessionUserBean = userService.getUserBeanByToken(token);
@@ -188,7 +193,10 @@ public class FileController {
 
 
         List<FileListVo> fileList = null;
+        // 路径解码
         userFile.setFilePath(UFOPUtils.urlDecode(filePath));
+        log.debug("路径解码成功：" + userFile.getFilePath());
+
         if (currentPage == 0 || pageCount == 0) {
             fileList = userFileService.userFileList(userFile, 0L, 10L);
         } else {
@@ -202,7 +210,8 @@ public class FileController {
         userFileLambdaQueryWrapper.eq(UserFile::getUserId, userFile.getUserId())
                 .eq(UserFile::getFilePath, userFile.getFilePath())
                 .eq(UserFile::getDeleteFlag, 0);
-        int total = userFileService.count(userFileLambdaQueryWrapper);
+//      int total = userFileService.count(userFileLambdaQueryWrapper);
+        long total = userFileService.count(userFileLambdaQueryWrapper);
 
         Map<String, Object> map = new HashMap<>();
         map.put("total", total);
@@ -224,7 +233,7 @@ public class FileController {
             throw new NotLoginException();
         }
         List<UserFile> userFiles = JSON.parseArray(batchDeleteFileDto.getFiles(), UserFile.class);
-        DigestUtils.md5Hex("data");
+//        DigestUtils.md5Hex("data");
         for (UserFile userFile : userFiles) {
 
             userFileService.deleteUserFile(userFile.getUserFileId(),sessionUserBean.getUserId());
